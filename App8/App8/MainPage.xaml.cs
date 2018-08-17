@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using Windows.Devices.PointOfService;
 using Windows.UI.Xaml.Controls;
 
 namespace App8
@@ -22,7 +23,7 @@ namespace App8
             this.ScannedCode = "waiting...";
 
             var newCode = await BarcodeScanningHelper.ScanOnceNoPreviewAsync(
-                TimeSpan.FromMilliseconds(-1));
+                TimeSpan.FromMilliseconds(-1), BarcodeSymbologies.Code128);
 
             if (newCode?.ScanDataLabel != null)
             {

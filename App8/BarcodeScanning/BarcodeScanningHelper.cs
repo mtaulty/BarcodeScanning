@@ -53,7 +53,10 @@ namespace BarcodeScanning
 
             if (CachedBarcodeDeviceId == null)
             {
-                var deviceSelector = BarcodeScanner.GetDeviceSelector();
+                // NB: changed to 'local' here in the hope of speeding up this call as
+                // it seems to take a long time.
+                var deviceSelector = BarcodeScanner.GetDeviceSelector(
+                    PosConnectionTypes.Local);
 
                 var devices = await DeviceInformation.FindAllAsync(deviceSelector);
 
@@ -78,7 +81,7 @@ namespace BarcodeScanning
             return (locatedScanner);
         }
         public static async Task<BarcodeScannerReport> ScanOnceNoPreviewAsync(
-            TimeSpan timeout)
+            TimeSpan timeout, params uint[] barcodeSymbologies)
         {
             var scanner = await FindBarcodeScannerAsync();
             BarcodeScannerReport report = null;
@@ -102,6 +105,10 @@ namespace BarcodeScanning
                         claimedScanner.IsDecodeDataEnabled = true;
                         claimedScanner.IsDisabledOnDataReceived = true;
 
+                        if (barcodeSymbologies?.Length > 0)
+                        {
+                            await claimedScanner.SetActiveSymbologiesAsync(barcodeSymbologies);
+                        }
                         TaskCompletionSource<bool> completed = new TaskCompletionSource<bool>();
 
                         TypedEventHandler<ClaimedBarcodeScanner, BarcodeScannerDataReceivedEventArgs> handler =
